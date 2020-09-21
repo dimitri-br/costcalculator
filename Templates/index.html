@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    .important { color: #336699; }
+    .width {
+        width: 500px;
+        margin: auto;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  <h1 class="text-primary">Cost calculator 2020</h1>
+  <p class="text-info">
+    Cost calculator for calculating redecorating costs in your home!
+  </p>
+{% if post==False %}
+<div class="width">
+    <h2 class="p-2 text-light bg-dark">Redecorating cost calculator form:</h2>
+    <form method="post" class="d-flex flex-column">
+        <div class="form-group p-2">
+            <label for="height">Wall height: </label>
+            <input class="form-control" step="any" id="height" name="height" type="number" placeholder="0" aria-placeholder="0" min="0" required/>
+        </div>
+
+        <div class="form-group p-2">
+            <label for="width">Wall width: </label>
+            <input class="form-control" step="any" id="width" name="width" type="number" placeholder="0" aria-placeholder="0" min="0" required/>
+        </div>
+        <div class="form-group p-2">
+            <label for="floor">Floor area: </label>
+            <input class="form-control" step="any" id="floor" name="floor" type="number" placeholder="0" aria-placeholder="0" min="0" required/>
+        </div>
+        <input type="submit" class="btn btn-info">
+    </form>
+</div>
+{%else%}
+<div class="width d-flex flex-column">
+    <h2 class="p-2 text-light bg-dark">Cost for redecorating:</h2>
+    <table class="table">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col" class="p-2">Name</th>
+                <th scope="col" class="p-2">Cost (£)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="row" class="p-2">Paint</th>
+                <td class="p-2">{{paint}}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="p-2">Floor</th>
+                <td class="p-2">{{floor}}</th>
+            </tr>
+        <tr>
+                <th scope="row" class="p-2">Total</th>
+                <td class="p-2">{{total}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <a href="/" class="p-2"><button class="btn btn-info">Go back</button></a>
+</div>
+{%endif%}
+{% endblock %}
