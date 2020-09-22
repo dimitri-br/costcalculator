@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+{% block title %}Cost Calculator - Documentation{% endblock %}
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    .code-text {
+        text-align: left;
+        color: #c73e75;
+    }
+    .anchor {
+        padding-top: 40px;
+        margin-top: -40px;
+    }
+    a.disabled {
+      pointer-events: none;
+      cursor: default;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+<a name="TOP" class="anchor disabled"><h1 class="text-secondary">Documentation</h1></a>
+<ul> Developing the calculator
+<li><a href="#CLI">Starting With A CLI</a></li>
+<li><a href="#GUI">Moving To A GUI</a></li>
+<li><a href="#WEB">Porting To A Web App</a></li>
+<li><a href="#APP">Creating An Android App</a></li>
+</ul>
+<div class="dropdown-divider"></div>
+
+
+<a name="CLI" class="anchor disabled"><h2 class="text-secondary">Starting with a CLI</h2></a>
+<p>When initially developing the calculator, I started by creating a class called <code>CostCalculator</code></p>
+<p>This class would hold all of my calculator code and functions, so I could reuse it as often as I needed easily.</p>
+<p>I created a few variables to help me:</p>
+<li><code>wall_area</code> - holds the wall area (Totalled for 4 walls)</li>
+<li><code>floor_area</code> - holds the floor area</li>
+<li><code>base_paint_cost</code> - holds the base paint cost per liter</li>
+<li><code>base_floor_cost</code> - holds the floor cost per m²</li>
+<li><code>base_carpet_cost</code> - holds the carper cost per m²</li>
+
+<p>I found from a quick google search that 1l paint covers 12m², so I divide the total m² by 12 to get the liters of paint needed. Then I take the average price of £10/L and multiply it to get the final price</p>
+<p>For flooring, I made up a number (Same for carpet) and just multiply it by the m²</p>
+<p>Here is the complete code:</p>
+<p><code><pre class="code-text">class CostCalculator:
+    def __init__(self):
+        self.wall_area = 0  # in m²
+        self.floor_area = 0  # in m²
+
+        self.__base_paint_cost = 10  # cost per liter
+        self.__base_floor_cost = 5  # cost per m²
+        self.__base_carpet_cost = 15  # cost per m²
+
+    def set_floor_area(self, area):
+        self.floor_area = area
+
+    def set_wall_area(self, height=10, width=5):
+        self.wall_area = height * width
+
+    def calculate_costs(self, is_carpet):
+        if is_carpet:
+            floor_cost = self.floor_area * self.__base_carpet_cost
+        else:
+            floor_cost = self.floor_area * self.__base_floor_cost
+
+        wall_cost = ((self.wall_area * 4) / 12) * self.__base_paint_cost
+
+        return floor_cost, wall_cost</pre></code></p>
+<div class="dropdown-divider"></div>
+<a name="GUI" class="anchor disabled"><h2 class="text-secondary">Moving to a GUI</h2></a>
+<p>When designing the GUI, I also kept an object oriented approach as the solution</p>
+<p>My class for the GUI was called <code>Renderer</code></p>
+<p>I had helper functions to create widgets and loop, as well as perform the calculations and return the value to the user</p>
+<p>To help me with the widgets I used the tkinter documentation and stackoverflow</p>
+<p>Full code:</p>
+<code>
+    <pre class="code-text">
+import tkinter as tk
+import tkinter.font as font
+
+class Renderer:
+    def __init__(self, title="Tkinter App"):
+        self.tk = tk.Tk()
+        self.tk.title(title)
+        self.tk.configure(bg='black')
+        self.add_widgets()
+
+    def add_widgets(self):
+        l = tk.Label(self.tk, text="Sum of wall height (All wall heights added)[m]:", font=("Times", 18, "bold"), fg="white", bg="black").pack()
+
+        self.height = tk.Entry(self.tk, font=("Times", 14))
+        self.height.pack()
+
+        l = tk.Label(self.tk, text="Sum of wall width (All wall widths added)[m]:", font=("Times", 18, "bold"), fg="white", bg="black").pack()
+
+
+        self.width = tk.Entry(self.tk, font=("Times", 14))
+        self.width.pack()
+
+        self.check = tk.IntVar()
+        l = tk.Label(self.tk, text="Is the floor carpet:", font=("Times", 18, "bold"), fg="white", bg="black").pack()
+
+        tk.Checkbutton(self.tk, variable=self.check, font=("Times", 18, "bold"), fg="black", bg="black").pack()
+
+        l = tk.Label(self.tk, text="Floor Area [m²]:", font=("Times", 18, "bold"), fg="white", bg="black").pack()
+
+        self.floor = tk.Entry(self.tk, font=("Times", 14))
+        self.floor.pack()
+
+        tk.Button(self.tk, text="Calculate", command=self.calculate_costs).pack()
+
+        l = tk.Label(self.tk, text="Cost:", font=("Times", 18, "bold"), fg="white", bg="black").pack()
+
+        self.cost = tk.Label(self.tk, text="", font=("Times", 18, "bold"), fg="white", bg="black")
+        self.cost.pack()
+
+    def calculate_costs(self):
+        from . import Calculator
+        try:
+            cc = Calculator.CostCalculator()
+
+            cc.set_wall_area(int(self.width.get()), int(self.height.get()))
+            cc.set_floor_area(int(self.floor.get()))
+            if self.check == 0:
+                isChecked = False
+            else:
+                isChecked = True
+            costs = cc.calculate_costs(isChecked)
+            print(f"Floor cost: £{costs[0]} for {cc.floor_area} m2\nWall cost: £{costs[1]} for {cc.wall_area} m2")
+            self.cost["text"] = f"Redecorating costs: £{str(round(costs[0]+costs[1], 2))}"
+
+        except BaseException as e:
+            print(f"Error calculating cost - {e}")
+
+    def loop(self):
+        self.tk.mainloop()
+
+    </pre>
+</code>
+<div class="dropdown-divider"></div>
+<a name="WEB" class="anchor disabled"><h2 class="text-secondary">Porting to a web app</h2></a>
+<p>To port to a web app, I used my CLI class (<code>CostCalculator</code>) and then built a small server using <a href="https://flask.palletsprojects.com/en/1.1.x/">flask</a></p>
+<p>I used <a href="https://jinja.palletsprojects.com/en/2.11.x/">jinja</a> to handle HTML and dynamic web pages, to create a good user experience</p>
+<p>For CSS, I used custom classes and <a href="https://getbootstrap.com/">bootstrap</a></p>
+<p>Stackoverflow was once again my friend here. I include https support alongside the server</p>
+<p>The server code can be seen below, or complete (with html) at <a href="https://github.com/dimitribobkov/costcalculator">github</a>: </p>
+<p>
+    <code>
+        <pre class="code-text">
+from CostCalculator.Calculator import CostCalculator
+import flask
+from flask import render_template, request
+
+app = flask.Flask(__name__)
+
+
+@app.route("/", methods=["GET", "POST"])
+def main():
+    if request.method == "GET":
+        return render_template("index.html", post=False, paint=0, floor=0, total=0)
+    else:
+        try:
+            width = float(request.form["width"])
+            height = float(request.form["height"])
+            floor = float(request.form["floor"])
+
+            calc = CostCalculator()
+            calc.set_wall_area(height, width)
+            calc.set_floor_area(floor)
+            cost = calc.calculate_costs(False)
+
+            # return f"£{cost[0] + cost[1]}"
+            return render_template("index.html", post=True, paint=round(cost[0], 2), floor=round(cost[1], 2),
+                                   total=round(cost[0] + cost[1], 2))
+        except:
+            return render_template("index.html", post=False, paint=0, floor=0, total=0)
+
+
+@app.route("/about", methods=["GET"])
+def about():
+    return render_template("about.html")
+
+@app.route("/docs", methods=["GET"])
+def docs():
+    return render_template("docs.html")
+
+if __name__ == "__main__":
+    context = ("ssl_crt.crt", "ssl_key.key")
+    app.run("192.168.0.26", 443, ssl_context=context)
+
+        </pre>
+    </code>
+</p>
+<div class="dropdown-divider"></div>
+<a name="APP" class="anchor disabled"><h2 class="text-secondary">Creating an android app</h2></a>
+<p>To create the android app, I used android studio</p>
+<p>Instead of redesigning the UI and app in Java or Kotlin (Which would defeat the purpose of the task), I instead used a webview to render this page</p>
+<p>This means any updates I make do not need to be downloaded! It also requires internet. I cannot add iOS support as it requires a mac, and I don't have one. The web version is the alternative.</p>
+
+<p>Please note that in order to create an app, I was required to use Java - I limited this as much as I could (The app is 1kb!)</p>
+<p>The code for the android app can be seen below: </p>
+<code>
+    <pre class="code-text">
+package com.dimitribobkov.costcalculator;
+
+import android.annotation.TargetApi;
+import android.graphics.Bitmap;
+import android.os.Build;
+import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+
+import android.webkit.WebResourceRequest;
+import android.webkit.WebView;
+import android.webkit.WebSettings;
+import android.webkit.WebChromeClient;
+import android.webkit.WebViewClient;
+
+public class MainActivity extends AppCompatActivity {
+
+    WebChromeClient mWebChromeClient = null;
+    WebView mWebView = null;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        //getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+
+        mWebView = (WebView) findViewById(R.id.webview);
+        // Enable Javascript
+        WebSettings webSettings = mWebView.getSettings();
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        webSettings.setAppCacheEnabled(true);
+        webSettings.setAppCacheMaxSize(100 * 1000 * 1000);
+        mWebView.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+            }
+
+            @SuppressWarnings("deprecation")
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                return false;
+            }
+
+            @TargetApi(Build.VERSION_CODES.N)
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                view.loadUrl(request.getUrl().toString());
+                return true;
+            }
+
+        });
+        mWebView.setWebChromeClient(new WebChromeClient());
+        mWebView.loadUrl("https://dimitribobkov.live");
+
+    }
+
+    /**
+     * Set the WebChromeClient.
+     * @param client An implementation of WebChromeClient.
+     */
+    public void setWebChromeClient(WebChromeClient client) {
+       mWebChromeClient = client;
+    }
+
+
+}
+    </pre>
+</code>
+<div class="dropdown-divider"></div>
+<p>That is all the work that went into this project!</p>
+<a href="#TOP">Return to top</a>
+{% endblock %}

@@ -1,57 +1,73 @@
 {% extends "base.html" %}
-{% block title %}Index{% endblock %}
+{% block title %}Cost Calculator{% endblock %}
 {% block head %}
   {{ super() }}
   <style type="text/css">
     .important { color: #336699; }
     .width {
         width: 500px;
+        object-fit: cover;
         margin: auto;
+    }
+    .border-4{
+        border-style:solid;
+         border-width: 4px !important;
+    }
+
+    .table-head {
+        background-color: #050505;
+    }
+    .table-body{
+        background-color: #1a1a1a;
     }
   </style>
 {% endblock %}
 {% block content %}
-  <h1 class="text-primary">Cost calculator 2020</h1>
-  <p class="text-info">
-    Cost calculator for calculating redecorating costs in your home!
-  </p>
+
 {% if post==False %}
-<div class="width">
-    <h2 class="p-2 text-light bg-dark">Redecorating cost calculator form:</h2>
+<div class="d-flex flex-column container-fluid">
+    <h3 class="p-2 text-secondary">Redecorating cost calculator form:</h3>
     <form method="post" class="d-flex flex-column">
         <div class="form-group p-2">
-            <label for="height">Wall height: </label>
+            <label for="height"><strong>Wall height: </strong></label>
             <input class="form-control" step="any" id="height" name="height" type="number" placeholder="0" aria-placeholder="0" min="0" required/>
         </div>
 
         <div class="form-group p-2">
-            <label for="width">Wall width: </label>
+            <label for="width"><strong>Wall width: </strong></label>
             <input class="form-control" step="any" id="width" name="width" type="number" placeholder="0" aria-placeholder="0" min="0" required/>
         </div>
         <div class="form-group p-2">
-            <label for="floor">Floor area: </label>
+            <label for="floor"><strong>Floor area: </strong></label>
             <input class="form-control" step="any" id="floor" name="floor" type="number" placeholder="0" aria-placeholder="0" min="0" required/>
         </div>
-        <input type="submit" class="btn btn-info">
+        <div class="form-group p-2">
+            <label for="ft"><strong>Floor type: </strong></label>
+            <select name="ft" id="ft" class="form-control">
+              <option value="flooring">None</option>
+              <option value="carpet">Carpet</option>
+            </select>
+        </div>
+        <input type="submit" class="btn bg-dark text-light">
     </form>
 </div>
 {%else%}
-<div class="width d-flex flex-column">
-    <h2 class="p-2 text-light bg-dark">Cost for redecorating:</h2>
-    <table class="table">
-        <thead class="thead-dark">
+<div class="d-flex flex-column container-fluid">
+    <h3 class="p-2 text-secondary">Cost for redecorating:</h3>
+    <table class="table border border-secondary border-4">
+        <thead class="table-head text-light">
             <tr>
-                <th scope="col" class="p-2">Name</th>
+                <th scope="col" class="p-2">Item</th>
                 <th scope="col" class="p-2">Cost (£)</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="text-light table-body">
             <tr>
                 <th scope="row" class="p-2">Paint</th>
                 <td class="p-2">{{paint}}</td>
             </tr>
             <tr>
-                <th scope="row" class="p-2">Floor</th>
+                <th scope="row" class="p-2">Flooring</th>
                 <td class="p-2">{{floor}}</th>
             </tr>
         <tr>
@@ -60,7 +76,10 @@
             </tr>
         </tbody>
     </table>
-    <a href="/" class="p-2"><button class="btn btn-info">Go back</button></a>
+    <a href="/" class="d-flex flex-column"><button class="btn bg-dark text-light">Go back</button></a>
+
 </div>
+
 {%endif%}
+
 {% endblock %}
