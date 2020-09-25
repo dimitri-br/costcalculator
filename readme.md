@@ -10,3 +10,5 @@ with
 where you input your IP/port
 
 Thats all!
+
+Documentation is linked in the site itself
